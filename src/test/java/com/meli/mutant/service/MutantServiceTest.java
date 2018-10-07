@@ -1,8 +1,10 @@
 package com.meli.mutant.service;
 
+import com.meli.mutant.repository.HumanRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class MutantServiceTest {
 
@@ -10,7 +12,8 @@ public class MutantServiceTest {
 
     @Before
     public void setUp() {
-        this.mutantService = new MutantService();
+        HumanRepository repository = Mockito.mock(HumanRepository.class);
+        this.mutantService = new MutantService(repository);
     }
 
     @Test

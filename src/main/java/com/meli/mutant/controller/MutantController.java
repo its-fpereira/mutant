@@ -18,9 +18,9 @@ public class MutantController {
         this.mutantService = mutantService;
     }
 
-    @PostMapping("/mutant/")
+    @PostMapping({"/mutant", "/mutant/"})
     public Mono<ResponseEntity<Void>> verifyMutantDna(@RequestBody VerifyMutantDNARequest request) {
-        return Mono.defer(() -> Mono.just(mutantService.isMutant(request.getDna())))
+        return mutantService.verifyMutantDna(request.getDna())
             .map(isMutant -> {
                 if (isMutant) return ResponseEntity.ok().build();
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

@@ -1,6 +1,9 @@
 package com.meli.mutant.service;
 
+import com.meli.mutant.domain.Human;
+import com.meli.mutant.repository.HumanRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,7 +11,19 @@ import java.util.regex.Pattern;
 @Service
 public class MutantService {
 
-    public boolean isMutant(String[] dna) {
+    private final HumanRepository humanRepository;
+
+    public MutantService(HumanRepository humanRepository) {
+        this.humanRepository = humanRepository;
+    }
+
+    public Mono<Boolean> verifyMutantDna(String[] dna) {
+        return humanRepository.findHumanByDna(getDnaHash(dna))
+            .switchIfEmpty(Mono.defer(() -> verifyAndSaveDna(dna)))
+            .map(Human::isMutant);
+    }
+
+    boolean isMutant(String[] dna) {
         long sum = 0;
         int n = dna.length;
 
@@ -30,6 +45,13 @@ public class MutantService {
         return sum > 1;
     }
 
+    private Mono<Human> verifyAndSaveDna(String[] dna) {
+        Human human = new Human();
+        human.setDna(getDnaHash(dna));
+        human.setMutant(isMutant(dna));
+        return humanRepository.save(human);
+    }
+
     private long getVerticalCount(String[] dna, int x, int y) {
         String sequence = "" + dna[x].charAt(y) + dna[x + 1].charAt(y) + dna[x + 2].charAt(y) + dna[x + 3].charAt(y);
         return verifyMutantSequence(sequence);
@@ -49,5 +71,9 @@ public class MutantService {
         Pattern pattern = Pattern.compile(expression);
         Matcher matcher = pattern.matcher(sequence);
         return matcher.results().count();
+    }
+
+    private int getDnaHash(String[] dna) {
+        return String.join("", dna).hashCode();
     }
 }
