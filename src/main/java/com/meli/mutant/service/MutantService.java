@@ -1,6 +1,7 @@
 package com.meli.mutant.service;
 
 import com.meli.mutant.domain.Human;
+import com.meli.mutant.domain.Stats;
 import com.meli.mutant.repository.HumanRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -21,6 +22,10 @@ public class MutantService {
         return humanRepository.findHumanByDna(getDnaHash(dna))
             .switchIfEmpty(Mono.defer(() -> verifyAndSaveDna(dna)))
             .map(Human::isMutant);
+    }
+
+    public Mono<Stats> calculateStats() {
+        return humanRepository.calculateStats();
     }
 
     boolean isMutant(String[] dna) {

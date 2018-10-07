@@ -1,9 +1,11 @@
 package com.meli.mutant.controller;
 
+import com.meli.mutant.domain.Stats;
 import com.meli.mutant.domain.VerifyMutantDNARequest;
 import com.meli.mutant.service.MutantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,5 +27,10 @@ public class MutantController {
                 if (isMutant) return ResponseEntity.ok().build();
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             });
+    }
+
+    @GetMapping({"/stats", "/stats/"})
+    public Mono<Stats> getStats() {
+        return mutantService.calculateStats();
     }
 }
